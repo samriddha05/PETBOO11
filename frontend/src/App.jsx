@@ -17,6 +17,7 @@ import GroomingMarketplace from './pages/GroomingMarketplace';
 import GroomerProfile from './pages/GroomerProfile';
 import BookingHistory from './pages/BookingHistory';
 import CheckoutPage from './pages/CheckoutPage';
+import PetProfilePage from './pages/PetProfilePage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -45,6 +46,7 @@ export default function App() {
       }>
         <Route index element={<DashboardPage />} />
         <Route path="pets" element={<PetsPage />} />
+        <Route path="pets/:petId" element={<PetProfilePage />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="shop" element={<ShopPage />} />
         <Route path="fresh-food" element={<FreshFoodPage />} />

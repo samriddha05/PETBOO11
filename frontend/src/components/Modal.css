@@ -7,13 +7,13 @@
   justify-content: center;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
-  animation: fade-in 0.2s ease-out;
+  animation: fadeIn 0.2s ease forwards;
 }
 
 .modal {
   width: 90%;
   padding: 0;
-  animation: scale-in 0.25s ease-out;
+  animation: scale-in 0.25s var(--transition-bounce) forwards;
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 }

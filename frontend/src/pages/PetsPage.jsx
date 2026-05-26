@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, PawPrint, Weight, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit3, Trash2, PawPrint, Weight, Calendar, ClipboardList } from 'lucide-react';
 import { api } from '../lib/api';
 import GlassCard from '../components/GlassCard';
 import Modal from '../components/Modal';
@@ -17,6 +18,7 @@ export default function PetsPage() {
   const [form, setForm] = useState(EMPTY_PET);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchPets = async () => {
     try {
@@ -115,21 +117,40 @@ export default function PetsPage() {
         />
       ) : (
         <div className="pets-page__grid">
-          {pets.map((pet, i) => (
+          {pets.map((pet, i) => {
+            const breedLower = (pet.breed || '').toLowerCase();
+            const emoji =
+              breedLower.includes('cat') || breedLower.includes('persian') || breedLower.includes('siamese') || breedLower.includes('tabby') ? '🐱' :
+              breedLower.includes('bird') || breedLower.includes('parrot') || breedLower.includes('canary') ? '🦜' :
+              breedLower.includes('rabbit') || breedLower.includes('bunny') ? '🐰' :
+              breedLower.includes('fish') || breedLower.includes('goldfish') ? '🐠' :
+              breedLower.includes('hamster') || breedLower.includes('guinea') ? '🐹' :
+              '🐶';
+            return (
             <GlassCard
               key={pet.id}
               className="pet-card"
               glow="teal"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
-              <div className="pet-card__avatar">🐾</div>
+              <div className="pet-card__top-row">
+                <div className="pet-card__avatar">{emoji}</div>
+                <div className="pet-card__icon-actions">
+                  <button className="pet-icon-btn" onClick={() => openEdit(pet)} title="Edit">
+                    <Edit3 size={14} />
+                  </button>
+                  <button className="pet-icon-btn pet-icon-btn--danger" onClick={() => setDeleteId(pet.id)} title="Delete">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
               <div className="pet-card__info">
                 <h3 className="pet-card__name">{pet.name}</h3>
                 <span className="badge badge-teal">{pet.breed}</span>
                 <div className="pet-card__stats">
                   <div className="pet-card__stat">
                     <Calendar size={13} />
-                    <span>{pet.age} years</span>
+                    <span>{pet.age} yr</span>
                   </div>
                   <div className="pet-card__stat">
                     <Weight size={13} />
@@ -137,16 +158,12 @@ export default function PetsPage() {
                   </div>
                 </div>
               </div>
-              <div className="pet-card__actions">
-                <button className="btn btn-sm btn-secondary" onClick={() => openEdit(pet)} title="Edit">
-                  <Edit3 size={14} />
-                </button>
-                <button className="btn btn-sm btn-danger" onClick={() => setDeleteId(pet.id)} title="Delete">
-                  <Trash2 size={14} />
-                </button>
-              </div>
+              <button className="btn btn-primary w-full pet-card__profile-btn" onClick={() => navigate(`/pets/${pet.id}`)}>
+                <ClipboardList size={15} /> View Medical Profile
+              </button>
             </GlassCard>
-          ))}
+            );
+          })}
         </div>
       )}
 

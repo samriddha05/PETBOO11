@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const aiRoutes = require('./src/routes/aiRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
@@ -10,8 +11,8 @@ const productRoutes = require('./src/routes/productRoutes');
 const vetRoutes = require('./src/routes/vetRoutes');
 const appointmentRoutes = require('./src/routes/appointmentRoutes');
 const groomingRoutes = require('./src/routes/groomingRoutes');
+const medicalRoutes = require('./src/routes/medicalRoutes');
 
-const path = require('path');
 dotenv.config({ path: path.resolve(__dirname, '.env'), override: true });
 
 const app = express();
@@ -37,6 +38,10 @@ app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/vets', vetRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
 app.use('/api/v1/groomers', groomingRoutes);
+app.use('/api/v1/pets/:petId/medical', medicalRoutes);
+
+// Serve uploaded medical files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (_req, res) => {
   res.send('PetSphere Backend API is running perfectly!');
