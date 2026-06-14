@@ -663,6 +663,137 @@ const reviews = [
 
 const consultations = [];
 
+/* ──────────────────────── Groomers ──────────────────────── */
+
+const groomers = [
+  {
+    id: 'groomer-001',
+    name: 'Priya Sharma',
+    email: 'priya.s@groomers.com',
+    phone: '+91-9998887771',
+    bio: 'Certified pet stylist specializing in anxious dogs and cats.',
+    profileImage: 'https://images.unsplash.com/photo-1595085610896-1d16a695c0dc?w=400',
+    experienceYears: 8,
+    address: 'Sector 6, Near Central Park',
+    city: 'Bhilai',
+    location: 'Sector 6, Bhilai',
+    rating: 4.9,
+    reviewCount: 15,
+    availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    availableTimeStart: '09:00',
+    availableTimeEnd: '18:00',
+    isAvailable: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'groomer-002',
+    name: 'Aarav Patel',
+    email: 'aarav.p@groomers.com',
+    phone: '+91-9998887772',
+    bio: 'Expert in large breeds and double-coated dogs.',
+    profileImage: 'https://images.unsplash.com/photo-1537151625747-768b6fc40db5?w=400',
+    experienceYears: 5,
+    address: 'Supela Market Area',
+    city: 'Bhilai',
+    location: 'Supela, Bhilai',
+    rating: 4.7,
+    reviewCount: 8,
+    availableDays: ['Mon', 'Wed', 'Fri', 'Sat'],
+    availableTimeStart: '09:00',
+    availableTimeEnd: '18:00',
+    isAvailable: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'groomer-003',
+    name: 'Ananya Iyer',
+    email: 'ananya.i@groomers.com',
+    phone: '+91-9998887773',
+    bio: 'Cat grooming specialist. Fear-free certified.',
+    profileImage: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400',
+    experienceYears: 12,
+    address: 'Nehru Nagar West',
+    city: 'Bhilai',
+    location: 'Nehru Nagar, Bhilai',
+    rating: 5.0,
+    reviewCount: 24,
+    availableDays: ['Tue', 'Thu', 'Sat'],
+    availableTimeStart: '09:00',
+    availableTimeEnd: '18:00',
+    isAvailable: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'groomer-004',
+    name: 'Vikram Singh',
+    email: 'vikram.s@groomers.com',
+    phone: '+91-9998887774',
+    bio: 'All-breed grooming expert with a passion for creative cuts.',
+    profileImage: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400',
+    experienceYears: 6,
+    address: '45 Green Glen Layout',
+    city: 'Bangalore',
+    location: 'Koramangala, Bangalore',
+    rating: 4.8,
+    reviewCount: 12,
+    availableDays: ['Mon', 'Tue', 'Wed', 'Thu'],
+    availableTimeStart: '09:00',
+    availableTimeEnd: '18:00',
+    isAvailable: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'groomer-005',
+    name: 'Rohan Das',
+    email: 'rohan.d@groomers.com',
+    phone: '+91-9998887775',
+    bio: 'Professional groomer focusing on dog safety and clean styling.',
+    profileImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400',
+    experienceYears: 10,
+    address: 'Shankar Nagar, VIP Road',
+    city: 'Raipur',
+    location: 'VIP Road, Raipur',
+    rating: 4.6,
+    reviewCount: 9,
+    availableDays: ['Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    availableTimeStart: '09:00',
+    availableTimeEnd: '18:00',
+    isAvailable: true,
+    createdAt: new Date().toISOString(),
+  }
+];
+
+const groomingServices = [
+  { id: 'service-001', groomerId: 'groomer-001', title: 'Bath & Dry', description: 'Premium shampoo, blow dry, and thorough brushing.', price: 45.00, durationMins: 60 },
+  { id: 'service-002', groomerId: 'groomer-001', title: 'Full Groom Package', description: 'Bath, haircut, nail trim, and ear cleaning.', price: 85.00, durationMins: 120 },
+  { id: 'service-003', groomerId: 'groomer-002', title: 'Deshedding Treatment', description: 'Specialized treatment to reduce shedding up to 90%.', price: 65.00, durationMins: 90 },
+  { id: 'service-004', groomerId: 'groomer-002', title: 'Nail Clipping & Filing', description: 'Gentle nail trimming and smoothing.', price: 15.00, durationMins: 20 },
+  { id: 'service-005', groomerId: 'groomer-003', title: 'Feline Spa Day', description: 'Waterless bath, gentle brushing, and nail trim for cats.', price: 55.00, durationMins: 60 },
+  { id: 'service-006', groomerId: 'groomer-003', title: 'Flea & Tick Treatment', description: 'Safe and effective parasite removal bath.', price: 75.00, durationMins: 60 },
+  { id: 'service-007', groomerId: 'groomer-004', title: 'Puppy Grooming', description: 'Introduces puppies to grooming with a gentle bath and blow dry.', price: 40.00, durationMins: 45 },
+  { id: 'service-008', groomerId: 'groomer-004', title: 'Full Groom Package', description: 'Standard bath, customized haircut, and hygiene clipping.', price: 80.00, durationMins: 100 },
+  { id: 'service-009', groomerId: 'groomer-005', title: 'Deodorizing Bath', description: 'Removes tough odors with deep-cleaning organic shampoo.', price: 50.00, durationMins: 50 },
+  { id: 'service-010', groomerId: 'groomer-005', title: 'Ear & Eye Cleaning', description: 'Safe cleaning of tear stains and ear canals.', price: 20.00, durationMins: 30 }
+];
+
+const groomingBookings = [
+  {
+    id: 'gbook-001',
+    userId: 'demo-user-001',
+    groomerId: 'groomer-001',
+    petId: 'mock-pet-buddy',
+    serviceId: 'service-001',
+    appointmentDate: new Date(Date.now() + 86400000 * 2).toISOString(),
+    status: 'pending',
+    notes: 'Please be gentle around ears.',
+    createdAt: new Date().toISOString()
+  }
+];
+
+const groomingReviews = [
+  { id: 'greview-001', userId: 'demo-user-001', groomerId: 'groomer-001', rating: 5, comment: 'Priya did an amazing job with Buddy!', createdAt: new Date().toISOString() }
+];
+
 /* ──────────────────── Helper Methods ──────────────────── */
 
 const mockDB = {
@@ -925,6 +1056,71 @@ const mockDB = {
   },
   getUserAppointmentCount(userId) {
     return appointments.filter((a) => a.userId === userId && a.status === 'upcoming').length;
+  },
+  
+  /* --- Grooming --- */
+  getGroomers({ city, rating } = {}) {
+    return groomers.filter((g) => {
+      if (city && g.city.toLowerCase() !== city.toLowerCase()) return false;
+      if (rating && g.rating < parseFloat(rating)) return false;
+      return true;
+    }).map(g => ({
+      ...g,
+      services: groomingServices.filter(s => s.groomerId === g.id),
+      reviews: groomingReviews.filter(r => r.groomerId === g.id).map(r => ({
+        ...r,
+        userName: users.find(u => u.id === r.userId)?.name || 'Demo User'
+      }))
+    }));
+  },
+  getGroomerById(id) {
+    const g = groomers.find((g) => g.id === id);
+    if (!g) return null;
+    return {
+      ...g,
+      services: groomingServices.filter(s => s.groomerId === g.id),
+      reviews: groomingReviews.filter(r => r.groomerId === g.id).map(r => ({
+        ...r,
+        userName: users.find(u => u.id === r.userId)?.name || 'Demo User'
+      }))
+    };
+  },
+  createGroomingBooking({ userId, groomerId, petId, serviceId, appointmentDate, notes }) {
+    const booking = {
+      id: uuid(),
+      userId,
+      groomerId,
+      petId: petId || null,
+      serviceId,
+      appointmentDate,
+      status: 'pending',
+      notes: notes || null,
+      createdAt: new Date().toISOString()
+    };
+    groomingBookings.push(booking);
+    return {
+      ...booking,
+      groomer: groomers.find(g => g.id === groomerId) || null,
+      service: groomingServices.find(s => s.id === serviceId) || null,
+      pet: pets.find(p => p.id === petId) || null
+    };
+  },
+  getGroomingBookingsByUser(userId) {
+    return groomingBookings
+      .filter((b) => b.userId === userId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .map((b) => ({
+        ...b,
+        groomer: groomers.find(g => g.id === b.groomerId) || null,
+        service: groomingServices.find(s => s.id === b.serviceId) || null,
+        pet: pets.find(p => p.id === b.petId) || null
+      }));
+  },
+  cancelGroomingBooking(id, userId) {
+    const idx = groomingBookings.findIndex((b) => b.id === id && b.userId === userId);
+    if (idx === -1) return null;
+    groomingBookings[idx].status = 'cancelled';
+    return groomingBookings[idx];
   },
 };
 

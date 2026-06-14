@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Star, MapPin, Clock, CheckCircle2 } from 'lucide-react';
-import { getGroomerById } from '../data/groomingData';
+import { api } from '../lib/api';
 import BookingModal from '../components/BookingModal';
+import StarRating from '../components/StarRating';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 
 const getAvatarGradient = (name) => {
+  if (!name) return 'linear-gradient(135deg, #059669, #0d9488)';
   const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const gradients = [
     'linear-gradient(135deg, #059669, #0d9488)', // Emerald to Teal
@@ -19,18 +22,37 @@ const getAvatarGradient = (name) => {
 export default function GroomerProfile() {
   const { id } = useParams();
   const [groomer, setGroomer] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
-    const data = getGroomerById(id);
-    setGroomer(data);
+    const fetchGroomer = async () => {
+      try {
+        const res = await api.get(`/groomers/${id}`);
+        setGroomer(res.groomer);
+      } catch (err) {
+        console.error('Failed to fetch groomer details:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroomer();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <LoadingSkeleton variant="profile" />
+      </div>
+    );
+  }
 
   if (!groomer) {
     return (
-      <div className="flex justify-center items-center h-screen text-slate-500">
-        <p>Groomer not found.</p>
+      <div className="flex flex-col justify-center items-center h-96 text-slate-500 gap-4">
+        <p className="text-lg font-semibold">Groomer not found.</p>
+        <Link to="/grooming" className="btn btn-primary">Back to Marketplace</Link>
       </div>
     );
   }
@@ -40,7 +62,7 @@ export default function GroomerProfile() {
     setIsModalOpen(true);
   };
 
-  const initials = groomer.name.split(' ').map(n => n[0]).join('');
+  const initials = groomer.name ? groomer.name.split(' ').map(n => n[0]).join('') : 'G';
   const avatarGradient = getAvatarGradient(groomer.name);
 
   return (
@@ -66,9 +88,9 @@ export default function GroomerProfile() {
                 </p>
               </div>
               <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1 text-xl font-bold text-slate-800">
-                  <Star className="w-6 h-6 fill-emerald-500 text-emerald-500" />
-                  {groomer.rating}
+                <div className="flex items-center gap-1">
+                  <StarRating rating={groomer.rating} size={18} />
+                  <span className="text-lg font-bold text-slate-800 ml-1">{groomer.rating}</span>
                 </div>
                 <span className="text-sm text-slate-500 mt-1">{groomer.reviews?.length || 0} reviews</span>
               </div>
@@ -103,7 +125,7 @@ export default function GroomerProfile() {
                 </div>
               </div>
               <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
-                <span className="text-2xl font-bold text-emerald-600">${service.price}</span>
+                <span className="text-2xl font-bold text-emerald-600">₹{service.price}</span>
                 <button 
                   onClick={() => handleBook(service)}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl font-semibold transition-colors"
@@ -143,6 +165,10 @@ export default function GroomerProfile() {
         onClose={() => setIsModalOpen(false)} 
         groomer={groomer}
         service={selectedService}
+        onBooked={() => {
+          setIsModalOpen(false);
+          alert('Grooming appointment booked successfully! Check your bookings history.');
+        }}
       />
     </div>
   );

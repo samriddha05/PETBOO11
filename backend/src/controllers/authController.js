@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { mockDB } = require('../utils/mockData');
+const { mockDB, uuid } = require('../utils/mockData');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'petsphere-secret-key-change-in-production';
 const JWT_EXPIRES_IN = '7d';
@@ -54,7 +54,7 @@ async function signup(req, res) {
       if (existing) {
         return res.status(409).json({ error: 'An account with this email already exists.' });
       }
-      user = mockDB.upsertUser({ id: crypto.randomUUID(), email, name: displayName, password: hashedPassword });
+      user = mockDB.upsertUser({ id: uuid(), email, name: displayName, password: hashedPassword });
     }
 
     // Generate JWT

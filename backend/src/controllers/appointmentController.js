@@ -103,6 +103,11 @@ async function bookAppointment(req, res) {
       appointment = mockDB.bookAppointment({ userId, petId, vetId, date, time, type, notes });
     }
 
+    // Send confirmation email in background
+    sendAppointmentEmail(userId, petId, vetId, date, time, type, notes).catch(err => {
+      console.error('[appointmentController] sendAppointmentEmail background error:', err);
+    });
+
     return res.status(201).json({ appointment });
   } catch (error) {
     return res.status(500).json({ error: "Failed to book appointment.", details: error.message });
@@ -323,6 +328,108 @@ async function getAppointmentCount(req, res) {
     return res.status(200).json({ count });
   } catch (error) {
     return res.status(500).json({ error: "Failed to get count.", details: error.message });
+  }
+}
+
+async function sendAppointmentEmail(userId, petId, vetId, date, time, type, notes) {
+  try {
+    let userName = 'Pet Owner';
+    let userEmail = '';
+    let vetName = 'Specialist';
+    let petName = 'Your Pet';
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (process.env.DATABASE_URL) {
+      // 1. Fetch User
+      if (uuidRegex.test(userId)) {
+        try {
+          const userRes = await db.query('SELECT name, email FROM "User" WHERE id = $1 LIMIT 1', [userId]);
+          if (userRes.rows[0]) {
+            userName = userRes.rows[0].name;
+            userEmail = userRes.rows[0].email;
+          }
+        } catch (dbErr) {
+          console.error('[appointmentController] DB error fetching user details:', dbErr.message);
+        }
+      }
+      if (!userEmail) {
+        const user = mockDB.findUser(userId);
+        if (user) {
+          userName = user.name;
+          userEmail = user.email;
+        }
+      }
+
+      // 2. Fetch Vet
+      if (uuidRegex.test(vetId)) {
+        try {
+          const vetRes = await db.query('SELECT name FROM "Veterinarian" WHERE id = $1 LIMIT 1', [vetId]);
+          if (vetRes.rows[0]) {
+            vetName = vetRes.rows[0].name;
+          }
+        } catch (dbErr) {
+          console.error('[appointmentController] DB error fetching vet details:', dbErr.message);
+        }
+      }
+      if (vetName === 'Specialist') {
+        const vet = mockDB.getVetById(vetId);
+        if (vet) {
+          vetName = vet.name;
+        }
+      }
+
+      // 3. Fetch Pet
+      if (uuidRegex.test(petId)) {
+        try {
+          const petRes = await db.query('SELECT name FROM "Pet" WHERE id = $1 LIMIT 1', [petId]);
+          if (petRes.rows[0]) {
+            petName = petRes.rows[0].name;
+          }
+        } catch (dbErr) {
+          console.error('[appointmentController] DB error fetching pet details:', dbErr.message);
+        }
+      }
+      if (petName === 'Your Pet') {
+        const petObj = mockDB.getPetsByUser(userId).find(p => p.id === petId);
+        if (petObj) {
+          petName = petObj.name;
+        }
+      }
+    } else {
+      // Mock mode
+      const user = mockDB.findUser(userId);
+      if (user) {
+        userName = user.name;
+        userEmail = user.email;
+      }
+      const vet = mockDB.getVetById(vetId);
+      if (vet) {
+        vetName = vet.name;
+      }
+      const petObj = mockDB.getPetsByUser(userId).find(p => p.id === petId);
+      if (petObj) {
+        petName = petObj.name;
+      }
+    }
+
+    if (userEmail) {
+      const { sendAppointmentConfirmationEmail } = require('../utils/mailer');
+      await sendAppointmentConfirmationEmail({
+        userEmail,
+        userName,
+        petName,
+        vetName,
+        date,
+        time,
+        type,
+        notes
+      });
+    } else {
+      console.warn('[appointmentController] sendAppointmentEmail skipped: User email could not be resolved.');
+    }
+  } catch (err) {
+    console.error('[appointmentController] sendAppointmentEmail error:', err.message);
   }
 }
 

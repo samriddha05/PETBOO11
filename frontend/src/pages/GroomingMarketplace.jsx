@@ -1,59 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, MapPin, Scissors, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { api } from '../lib/api';
 import GroomerCard from '../components/GroomerCard';
-import { getGroomers } from '../data/groomingData';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import EmptyState from '../components/EmptyState';
+import './GroomingMarketplace.css';
+
+const CITIES = ['All', 'Durg', 'Bhilai', 'Raipur', 'Bangalore', 'Mumbai', 'Chennai', 'Delhi', 'Hyderabad', 'Kolkata'];
 
 export default function GroomingMarketplace() {
   const [groomers, setGroomers] = useState([]);
-  const [location, setLocation] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [filterCity, setFilterCity] = useState('All');
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [minRating, setMinRating] = useState(0);
 
   useEffect(() => {
-    // In a real app, this would fetch from /api/v1/groomers
-    setGroomers(getGroomers(location, minRating));
-  }, [location, minRating]);
+    fetchGroomers();
+  }, []);
+
+  const fetchGroomers = async () => {
+    try {
+      const res = await api.get('/groomers');
+      setGroomers(res.groomers || []);
+    } catch (err) {
+      console.error('Failed to fetch groomers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredGroomers = groomers.filter(groomer => {
+    if (search && 
+        !groomer.name.toLowerCase().includes(search.toLowerCase()) && 
+        !groomer.bio.toLowerCase().includes(search.toLowerCase())
+    ) return false;
+    
+    if (filterCity !== 'All' && groomer.city !== filterCity) return false;
+    if (showAvailableOnly && !groomer.isAvailable) return false;
+    if (minRating > 0 && groomer.rating < minRating) return false;
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <div className="grooming-page">
+        <div className="grooming-page__grid">
+          <LoadingSkeleton variant="card" count={6} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="grooming-page">
+      {/* Header */}
+      <div className="grooming-page__header">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Pet Grooming Marketplace</h1>
-          <p className="text-slate-500 mt-2">Find and book the perfect stylist for your furry friend.</p>
-        </div>
-        
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 w-full md:w-auto">
-          <div className="relative flex-grow md:w-64">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Filter by location..." 
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
-          <select 
-            className="px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white text-slate-700"
-            value={minRating}
-            onChange={(e) => setMinRating(Number(e.target.value))}
-          >
-            <option value={0}>Any Rating</option>
-            <option value={4}>4+ Stars</option>
-            <option value={4.5}>4.5+ Stars</option>
-          </select>
+          <h2>Grooming Marketplace</h2>
+          <p>{filteredGroomers.length} groomer{filteredGroomers.length !== 1 ? 's' : ''} found</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {groomers.length > 0 ? (
-          groomers.map(g => <GroomerCard key={g.id} groomer={g} />)
-        ) : (
-          <div className="col-span-full py-12 text-center text-slate-500 bg-slate-50 rounded-2xl border border-slate-100">
-            No groomers found matching your criteria.
-          </div>
-        )}
+      {/* Search & Filters */}
+      <div className="grooming-page__toolbar">
+        <div className="grooming-page__search">
+          <Search size={18} />
+          <input
+            type="text"
+            className="input-field"
+            placeholder="Search by name or bio..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <button
+          className={`btn btn-secondary ${showFilters ? 'active' : ''}`}
+          onClick={() => setShowFilters(s => !s)}
+        >
+          <SlidersHorizontal size={16} />
+          Filters
+        </button>
       </div>
+
+      {showFilters && (
+        <div className="grooming-page__filters">
+          <div className="grooming-page__filter-group">
+            <label><MapPin size={14} /> City</label>
+            <div className="grooming-page__filter-pills">
+              {CITIES.map(city => (
+                <button
+                  key={city}
+                  className={`filter-pill ${filterCity === city ? 'active' : ''}`}
+                  onClick={() => setFilterCity(city)}
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="grooming-page__filter-group">
+            <label><Sparkles size={14} /> Rating</label>
+            <div className="grooming-page__filter-pills">
+              {[
+                { label: 'Any Rating', value: 0 },
+                { label: '4.0+ Stars', value: 4.0 },
+                { label: '4.5+ Stars', value: 4.5 },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  className={`filter-pill ${minRating === opt.value ? 'active' : ''}`}
+                  onClick={() => setMinRating(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="grooming-page__toggle">
+            <input
+              type="checkbox"
+              checked={showAvailableOnly}
+              onChange={e => setShowAvailableOnly(e.target.checked)}
+            />
+            <span>Show available only</span>
+          </label>
+        </div>
+      )}
+
+      {/* Groomers Grid */}
+      {filteredGroomers.length === 0 ? (
+        <EmptyState
+          icon={Scissors}
+          title="No groomers found"
+          description="Try adjusting your search or filters."
+        />
+      ) : (
+        <div className="grooming-page__grid">
+          {filteredGroomers.map((groomer, i) => (
+            <GroomerCard
+              key={groomer.id}
+              groomer={groomer}
+              style={{ animationDelay: `${i * 0.05}s` }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

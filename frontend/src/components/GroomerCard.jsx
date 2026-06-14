@@ -14,7 +14,7 @@ const getAvatarGradient = (name) => {
   return gradients[hash % gradients.length];
 };
 
-export default function GroomerCard({ groomer }) {
+export default function GroomerCard({ groomer, style }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
@@ -40,6 +40,7 @@ export default function GroomerCard({ groomer }) {
         flexDirection: 'column',
         overflow: 'hidden',
         transition: 'transform 0.2s, box-shadow 0.2s',
+        ...style
       }}
         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.13)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)'; }}
@@ -254,6 +255,10 @@ export default function GroomerCard({ groomer }) {
         onClose={() => setIsBookingOpen(false)}
         groomer={groomer}
         service={selectedService}
+        onBooked={() => {
+          setIsBookingOpen(false);
+          alert('Grooming appointment booked successfully! Check your bookings history.');
+        }}
       />
     </>
   );

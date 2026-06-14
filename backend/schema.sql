@@ -90,11 +90,22 @@ CREATE TABLE IF NOT EXISTS "KnowledgeDocument" (
 CREATE TABLE IF NOT EXISTS "Groomer" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
     "bio" TEXT,
     "profileImage" TEXT,
     "experienceYears" INTEGER NOT NULL DEFAULT 0,
-    "rating" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "address" TEXT,
+    "city" TEXT NOT NULL DEFAULT 'Bhilai',
     "location" TEXT,
+    "lat" DOUBLE PRECISION,
+    "lng" DOUBLE PRECISION,
+    "rating" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "reviewCount" INTEGER NOT NULL DEFAULT 0,
+    "availableDays" TEXT[] DEFAULT '{}',
+    "availableTimeStart" TEXT DEFAULT '09:00',
+    "availableTimeEnd" TEXT DEFAULT '18:00',
+    "isAvailable" BOOLEAN NOT NULL DEFAULT TRUE,
     "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -162,6 +173,97 @@ CREATE TABLE IF NOT EXISTS "GroomerReview" (
 );
 
 -- =========================
+-- Veterinarian Table
+-- =========================
+
+CREATE TABLE IF NOT EXISTS "Veterinarian" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "specialization" TEXT NOT NULL,
+    "experience" INTEGER NOT NULL DEFAULT 0,
+    "clinic" TEXT NOT NULL,
+    "address" TEXT,
+    "city" TEXT NOT NULL,
+    "lat" DOUBLE PRECISION,
+    "lng" DOUBLE PRECISION,
+    "consultationFee" DOUBLE PRECISION NOT NULL,
+    "rating" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "reviewCount" INTEGER NOT NULL DEFAULT 0,
+    "imageUrl" TEXT,
+    "availableDays" TEXT[] DEFAULT '{}',
+    "availableTimeStart" TEXT,
+    "availableTimeEnd" TEXT,
+    "isAvailable" BOOLEAN NOT NULL DEFAULT TRUE,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- =========================
+-- Appointment Table
+-- =========================
+
+CREATE TABLE IF NOT EXISTS "Appointment" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "petId" UUID NOT NULL,
+    "vetId" UUID NOT NULL,
+    "date" TEXT NOT NULL,
+    "time" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'in-person',
+    "status" TEXT NOT NULL DEFAULT 'upcoming',
+    "notes" TEXT,
+    "prescription" TEXT,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "Appointment_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE,
+
+    CONSTRAINT "Appointment_petId_fkey"
+    FOREIGN KEY ("petId") REFERENCES "Pet"("id") ON DELETE CASCADE,
+
+    CONSTRAINT "Appointment_vetId_fkey"
+    FOREIGN KEY ("vetId") REFERENCES "Veterinarian"("id") ON DELETE CASCADE
+);
+
+-- =========================
+-- Review Table
+-- =========================
+
+CREATE TABLE IF NOT EXISTS "Review" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "vetId" UUID NOT NULL,
+    "appointmentId" UUID,
+    "rating" INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    "comment" TEXT,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "Review_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE,
+
+    CONSTRAINT "Review_vetId_fkey"
+    FOREIGN KEY ("vetId") REFERENCES "Veterinarian"("id") ON DELETE CASCADE
+);
+
+-- =========================
+-- Consultation Table
+-- =========================
+
+CREATE TABLE IF NOT EXISTS "Consultation" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "appointmentId" UUID NOT NULL,
+    "type" TEXT NOT NULL,
+    "startTime" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "endTime" TIMESTAMP,
+    "duration" DOUBLE PRECISION,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "Consultation_appointmentId_fkey"
+    FOREIGN KEY ("appointmentId") REFERENCES "Appointment"("id") ON DELETE CASCADE
+);
+
+-- =========================
 -- Indexes
 -- =========================
 
@@ -173,6 +275,10 @@ CREATE INDEX IF NOT EXISTS "GroomingService_groomerId_idx" ON "GroomingService"(
 CREATE INDEX IF NOT EXISTS "GroomingBooking_userId_idx" ON "GroomingBooking"("userId");
 CREATE INDEX IF NOT EXISTS "GroomingBooking_groomerId_idx" ON "GroomingBooking"("groomerId");
 CREATE INDEX IF NOT EXISTS "GroomerReview_groomerId_idx" ON "GroomerReview"("groomerId");
+CREATE INDEX IF NOT EXISTS "Appointment_userId_idx" ON "Appointment"("userId");
+CREATE INDEX IF NOT EXISTS "Appointment_vetId_idx" ON "Appointment"("vetId");
+CREATE INDEX IF NOT EXISTS "Review_vetId_idx" ON "Review"("vetId");
+CREATE INDEX IF NOT EXISTS "Consultation_appointmentId_idx" ON "Consultation"("appointmentId");
 
 -- =========================
 -- Seed: Sample Products
@@ -199,3 +305,13 @@ INSERT INTO "Product" ("name", "description", "price", "category", "imageUrl", "
   ('Beef & Brown Rice Meal', 'Lean ground beef with brown rice and carrots. Vet-approved recipe.', 399, 'Fresh Food', NULL, TRUE),
   ('Fish & Quinoa Dinner', 'Wild-caught fish with quinoa and spinach. Rich in Omega-3.', 449, 'Fresh Food', NULL, TRUE),
   ('Turkey & Pumpkin Stew', 'Slow-cooked turkey with pumpkin puree. Easy on sensitive tummies.', 379, 'Fresh Food', NULL, TRUE);
+
+-- =========================
+-- Seed: Sample Veterinarians
+-- =========================
+
+INSERT INTO "Veterinarian" ("id", "name", "email", "phone", "specialization", "experience", "clinic", "address", "city", "lat", "lng", "consultationFee", "rating", "reviewCount", "imageUrl", "availableDays", "availableTimeStart", "availableTimeEnd", "isAvailable") VALUES
+  ('9a7b0001-c852-4467-929a-5d79d52379a1', 'Dr. Priya Sharma', 'priya.sharma@petvet.com', '+91-9876543210', 'General Veterinary', 12, 'PawCare Animal Hospital', '45, MG Road, Koramangala', 'Bangalore', 12.9352, 77.6245, 800, 4.8, 124, NULL, '{"Mon", "Tue", "Wed", "Thu", "Fri"}', '09:00', '18:00', TRUE),
+  ('9a7b0002-c852-4467-929a-5d79d52379a2', 'Dr. Arjun Patel', 'arjun.patel@petvet.com', '+91-9876543211', 'Orthopedic Surgery', 15, 'VetLife Specialty Clinic', '12, Indiranagar 100ft Road', 'Bangalore', 12.9784, 77.6408, 1500, 4.9, 89, NULL, '{"Mon", "Wed", "Fri"}', '10:00', '16:00', TRUE),
+  ('9a7b0003-c852-4467-929a-5d79d52379a3', 'Dr. Sneha Reddy', 'sneha.reddy@petvet.com', '+91-9876543212', 'Dermatology', 8, 'SkinPaw Dermatology Center', '78, Whitefield Main Road', 'Bangalore', 12.9698, 77.7500, 1000, 4.6, 67, NULL, '{"Tue", "Thu", "Sat"}', '09:00', '17:00', TRUE),
+  ('9a7b0004-c852-4467-929a-5d79d52379a4', 'Dr. Rahul Mehta', 'rahul.mehta@petvet.com', '+91-9876543213', 'Cardiology', 20, 'HeartPet Cardiac Care', '23, Bandra West', 'Mumbai', 19.0596, 72.8295, 2000, 4.9, 203, NULL, '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '08:00', '20:00', TRUE);
