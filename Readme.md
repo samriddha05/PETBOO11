@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/PetSphere-🐾-emerald?style=for-the-badge&labelColor=064e3b&color=059669" alt="PetSphere" />
-</p>
+The link -- https://punyaadixit.github.io/PETBOO/
+
 
 <h1 align="center">🐾 PetSphere</h1>
 
