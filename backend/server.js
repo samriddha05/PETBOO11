@@ -12,6 +12,7 @@ const vetRoutes = require('./src/routes/vetRoutes');
 const appointmentRoutes = require('./src/routes/appointmentRoutes');
 const groomingRoutes = require('./src/routes/groomingRoutes');
 const medicalRoutes = require('./src/routes/medicalRoutes');
+const activityRoutes = require('./src/routes/activityRoutes');
 
 dotenv.config({ path: path.resolve(__dirname, '.env'), override: true });
 
@@ -39,6 +40,7 @@ app.use('/api/v1/vets', vetRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
 app.use('/api/v1/groomers', groomingRoutes);
 app.use('/api/v1/pets/:petId/medical', medicalRoutes);
+app.use('/api/v1/pets/:petId/activities', activityRoutes);
 
 // Serve uploaded medical files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -60,4 +62,24 @@ app.listen(PORT, () => {
   console.log(`   Database:  ${dbConfigured ? '✅ PostgreSQL' : '⚡ In-memory mock data'}`);
   console.log(`   Auth:      ${authConfigured ? '✅ Supabase' : '⚡ Demo mode only'}`);
   console.log(`   AI Chat:   ${aiConfigured ? '✅ Groq API' : '⚡ Mock responses'}\n`);
+
+  if (dbConfigured) {
+    const db = require('./src/utils/db');
+    db.query(`
+      CREATE TABLE IF NOT EXISTS "ActivityLog" (
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "petId" UUID NOT NULL REFERENCES "Pet"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+        "type" TEXT NOT NULL,
+        "value" DOUBLE PRECISION NOT NULL,
+        "date" DATE NOT NULL,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS "ActivityLog_petId_idx" ON "ActivityLog"("petId");
+      CREATE INDEX IF NOT EXISTS "ActivityLog_date_idx" ON "ActivityLog"("date" DESC);
+    `).then(() => {
+      console.log('   ✅ PostgreSQL ActivityLog table verified/created');
+    }).catch(err => {
+      console.error('   ❌ Failed to verify/create ActivityLog table:', err.message);
+    });
+  }
 });
