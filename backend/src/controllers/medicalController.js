@@ -1,11 +1,12 @@
 const db = require('../utils/db');
+const { mockDB } = require('../utils/mockData');
 const path = require('path');
 const fs = require('fs');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function mockMedicalRecords() { return []; }
-function mockVaccinations() { return []; }
+function mockMedicalRecords(petId) { return mockDB.getMedicalRecords(petId); }
+function mockVaccinations(petId) { return mockDB.getVaccinations(petId); }
 
 // ─── Medical Records ──────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ async function getMedicalRecords(req, res) {
       return res.status(200).json({ records: result.rows });
     }
 
-    return res.status(200).json({ records: mockMedicalRecords() });
+    return res.status(200).json({ records: mockMedicalRecords(petId) });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch medical records.', details: error.message });
   }
@@ -132,7 +133,19 @@ async function addMedicalRecord(req, res) {
       return res.status(201).json({ record: { ...result.rows[0], files: [] } });
     }
 
-    return res.status(201).json({ record: { id: 'mock-id', petId, visitDate, files: [] } });
+    const record = mockDB.addMedicalRecord({
+      petId,
+      visitDate,
+      doctorName,
+      clinicName,
+      symptoms,
+      diagnosis,
+      prescriptionNotes,
+      medicines,
+      additionalNotes,
+      nextVisitDate,
+    });
+    return res.status(201).json({ record });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to add medical record.', details: error.message });
   }
@@ -327,7 +340,7 @@ async function getVaccinations(req, res) {
       return res.status(200).json({ vaccinations: result.rows });
     }
 
-    return res.status(200).json({ vaccinations: mockVaccinations() });
+    return res.status(200).json({ vaccinations: mockVaccinations(petId) });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch vaccinations.', details: error.message });
   }
@@ -363,7 +376,17 @@ async function addVaccination(req, res) {
       return res.status(201).json({ vaccination: result.rows[0] });
     }
 
-    return res.status(201).json({ vaccination: { id: 'mock-v-id', petId, vaccineName, vaccinationDate } });
+    const vaccination = mockDB.addVaccination({
+      petId,
+      vaccineName,
+      vaccinationDate,
+      nextDueDate,
+      doctorName,
+      clinicName,
+      batchNumber,
+      notes
+    });
+    return res.status(201).json({ vaccination });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to add vaccination.', details: error.message });
   }
