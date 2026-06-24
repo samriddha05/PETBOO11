@@ -83,8 +83,8 @@ PetSphere/
 
 ### Prerequisites
 
-- **Node.js** ≥ 18.x
-- **npm** ≥ 9.x
+- **Node.js** ≥ 24.x
+- **npm** ≥ 10.x
 - **PostgreSQL** database (or Supabase project)
 - **Groq API Key** (free at [console.groq.com](https://console.groq.com))
 
