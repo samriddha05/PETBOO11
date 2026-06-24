@@ -5,6 +5,7 @@ import {
   Salad, Shield, ChevronLeft, ChevronRight, Sparkles,
   Stethoscope, CalendarCheck, Scissors
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
 /* Navigation items dynamically mapped from backend modules */
@@ -21,6 +22,7 @@ const NAV_MODULES = [
 ];
 
 export default function Sidebar() {
+  const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -62,9 +64,13 @@ export default function Sidebar() {
       {/* User Profile */}
       {!collapsed && (
         <div className="sidebar__user">
-          <img src="https://ui-avatars.com/api/?name=Sarthak&background=random" alt="Sarthak" className="sidebar__user-avatar" />
+          <img 
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Sarthak')}&background=random`} 
+            alt={user?.name || 'User'} 
+            className="sidebar__user-avatar" 
+          />
           <div className="sidebar__user-info">
-            <strong>Sarthak</strong>
+            <strong>{user?.name || 'Sarthak'}</strong>
             <span>Pet Parent</span>
           </div>
           <ChevronRight size={16} />
