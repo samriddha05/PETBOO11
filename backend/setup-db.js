@@ -66,6 +66,7 @@ async function run() {
   await dbClient.query(`DROP TABLE IF EXISTS "GroomingBooking" CASCADE`);
   await dbClient.query(`DROP TABLE IF EXISTS "GroomingService" CASCADE`);
   await dbClient.query(`DROP TABLE IF EXISTS "Groomer" CASCADE`);
+  await dbClient.query(`DROP TABLE IF EXISTS "ActivityLog" CASCADE`);
 
   await dbClient.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
   
@@ -313,9 +314,22 @@ async function run() {
       "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
       CONSTRAINT "GroomerReview_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE,
       CONSTRAINT "GroomerReview_groomerId_fkey" FOREIGN KEY ("groomerId") REFERENCES "Groomer"("id") ON DELETE CASCADE
-    )
   `);
   console.log('   ✅ GroomerReview table');
+
+  // ActivityLog table
+  await dbClient.query(`
+    CREATE TABLE IF NOT EXISTS "ActivityLog" (
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "petId" UUID NOT NULL,
+      "type" TEXT NOT NULL,
+      "value" DOUBLE PRECISION NOT NULL,
+      "date" DATE NOT NULL,
+      "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+      CONSTRAINT "ActivityLog_petId_fkey" FOREIGN KEY ("petId") REFERENCES "Pet"("id") ON DELETE CASCADE ON UPDATE CASCADE
+    )
+  `);
+  console.log('   ✅ ActivityLog table');
 
   // Indexes
   await dbClient.query(`CREATE INDEX IF NOT EXISTS "Pet_userId_idx" ON "Pet"("userId")`);
@@ -330,6 +344,8 @@ async function run() {
   await dbClient.query(`CREATE INDEX IF NOT EXISTS "Appointment_vetId_idx" ON "Appointment"("vetId")`);
   await dbClient.query(`CREATE INDEX IF NOT EXISTS "Review_vetId_idx" ON "Review"("vetId")`);
   await dbClient.query(`CREATE INDEX IF NOT EXISTS "Consultation_appointmentId_idx" ON "Consultation"("appointmentId")`);
+  await dbClient.query(`CREATE INDEX IF NOT EXISTS "ActivityLog_petId_idx" ON "ActivityLog"("petId")`);
+  await dbClient.query(`CREATE INDEX IF NOT EXISTS "ActivityLog_date_idx" ON "ActivityLog"("date" DESC)`);
   console.log('   ✅ Indexes created');
 
   // Step 5: Seed products if table is empty
