@@ -1,15 +1,17 @@
 const express = require('express');
-const router = express.Router({ mergeParams: true });
 const authMiddleware = require('../middleware/authMiddleware');
-const activityController = require('../controllers/activityController');
+const {
+  getPetActivities,
+  addPetActivity,
+  getPetDashboardData
+} = require('../controllers/activityController');
 
-// GET /pets/:petId/activities/dashboard-data
-router.get('/dashboard-data', authMiddleware, activityController.getDashboardData);
+const router = express.Router({ mergeParams: true });
 
-// GET /pets/:petId/activities
-router.get('/', authMiddleware, activityController.getActivities);
+router.use(authMiddleware);
 
-// POST /pets/:petId/activities
-router.post('/', authMiddleware, activityController.addActivity);
+router.get('/', getPetActivities);
+router.post('/', addPetActivity);
+router.get('/dashboard-data', getPetDashboardData);
 
 module.exports = router;

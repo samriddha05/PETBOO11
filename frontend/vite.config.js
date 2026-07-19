@@ -1,21 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import viteConfig from './vite.config.json' assert { type: 'json' };
 
 export default defineConfig({
-  base: '/PETBOO/',
+  ...viteConfig,
   plugins: [react()],
-  server: {
-    port: 3000,
-    open: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-      '/uploads': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-    },
-  },
 });

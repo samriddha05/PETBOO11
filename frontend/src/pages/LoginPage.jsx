@@ -18,7 +18,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [devResetLink, setDevResetLink] = useState('');
 
   if (isAuthenticated) {
     navigate('/', { replace: true });
@@ -47,14 +46,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setDevResetLink('');
     setLoading(true);
     try {
       const res = await api.post('/auth/forgot-password', { email });
       setSuccess(res.message || 'Password reset link sent successfully.');
-      if (res.resetLink) {
-        setDevResetLink(res.resetLink);
-      }
     } catch (err) {
       setError(err.message || 'Failed to request password reset link.');
     } finally {
@@ -101,27 +96,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            {devResetLink && (
-              <div style={{
-                background: '#eff6ff',
-                color: '#1d4ed8',
-                border: '1px solid #bfdbfe',
-                padding: '12px 16px',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.85rem',
-                textAlign: 'left',
-              }}>
-                <strong style={{ display: 'block', marginBottom: '4px' }}>👨‍💻 Developer Mode Reset Link:</strong>
-                <a 
-                  href={devResetLink.replace('http://localhost:5173', window.location.origin)} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={{ color: '#2563eb', textDecoration: 'underline', wordBreak: 'break-all', fontWeight: 600 }}
-                >
-                  Click here to reset password
-                </a>
-              </div>
-            )}
+
 
             <div className="input-group">
               <label htmlFor="forgot-email">Email</label>
@@ -156,7 +131,6 @@ export default function LoginPage() {
                   setIsForgotPassword(false);
                   setError('');
                   setSuccess('');
-                  setDevResetLink('');
                 }}
               >
                 Back to Sign In

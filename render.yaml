@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: petsphere-frontend
+    env: static
+    staticPublishPath: frontend/dist
+    branch: main
+    buildCommand: "cd frontend && npm install && npm run build"
+    envVars:
+      - key: NODE_ENV
+        value: production
+  - type: web
+    name: petsphere-backend
+    env: node
+    branch: main
+    buildCommand: "cd backend && npm install"
+    startCommand: "cd backend && npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: CORS_ORIGIN
+        value: "*"

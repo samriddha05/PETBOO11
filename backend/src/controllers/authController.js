@@ -1,11 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { mockDB, uuid } = require('../utils/mockData');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'petsphere-secret-key-change-in-production';
 const JWT_EXPIRES_IN = '7d';
 
 const db = require('../utils/db');
+const { sendPasswordResetEmail } = require('../utils/mailer');
 
 /**
  * POST /api/v1/auth/signup
@@ -209,30 +211,71 @@ async function forgotPassword(req, res) {
       return res.status(404).json({ error: 'No user is registered with this email address.' });
     }
 
-    // Generate stateless JWT reset token with 1h expiration
-    const resetToken = jwt.sign(
-      { userId: user.id, email: user.email, purpose: 'password-reset' },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    // Generate secure random token and expiration time (30 minutes)
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
 
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+    // Save token to database
+    if (process.env.DATABASE_URL) {
+      await db.query(
+        'UPDATE "User" SET "resetToken" = $1, "resetExpires" = $2 WHERE id = $3',
+        [token, expiresAt, user.id]
+      );
+    } else {
+      // Mock database save
+      user.resetToken = token;
+      user.resetExpires = expiresAt.toISOString();
+    }
 
-    // --- EMAIL SIMULATOR (Console Log) ---
-    console.log('\n==================================================');
-    console.log('               [EMAIL SIMULATOR]');
-    console.log(`To: ${user.email}`);
-    console.log('Subject: Password Reset Request');
-    console.log(`Hello ${user.name || 'User'},`);
-    console.log('We received a request to reset your password.');
-    console.log('Please click the link below to set a new password:');
-    console.log(`👉 ${resetLink}`);
-    console.log('This link is valid for 1 hour.');
-    console.log('==================================================\n');
+    let frontendUrl = process.env.FRONTEND_URL;
+
+    // 1. Try to use Origin header if present and valid
+    if (!frontendUrl && req.headers.origin && req.headers.origin !== 'null' && req.headers.origin !== 'undefined') {
+      frontendUrl = req.headers.origin;
+    }
+
+    // 2. Try to extract origin from Referer header if present and valid
+    if (!frontendUrl && req.headers.referer) {
+      try {
+        const parsedReferer = new URL(req.headers.referer);
+        if (parsedReferer.origin && parsedReferer.origin !== 'null' && parsedReferer.origin !== 'undefined') {
+          frontendUrl = parsedReferer.origin;
+        }
+      } catch (e) {
+        // Ignored URL parsing errors
+      }
+    }
+
+    // 3. Try to use Host header (mapping backend port 5000 to frontend port 3000 for local development)
+    if (!frontendUrl && req.headers.host) {
+      const host = req.headers.host;
+      const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+      if (host.includes('localhost:') || host.includes('127.0.0.1:')) {
+        frontendUrl = `${protocol}://${host.split(':')[0]}:3000`;
+      } else if (host.match(/^\d+\.\d+\.\d+\.\d+(:\d+)?$/)) {
+        // Local IP address (e.g. 192.168.1.5:5000)
+        frontendUrl = `${protocol}://${host.split(':')[0]}:3000`;
+      } else {
+        frontendUrl = `${protocol}://${host}`;
+      }
+    }
+
+    // 4. Default fallback
+    if (!frontendUrl || frontendUrl === 'null' || frontendUrl === 'undefined') {
+      frontendUrl = 'http://localhost:3000';
+    }
+
+    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+
+    // Send password reset email
+    await sendPasswordResetEmail({
+      userEmail: user.email,
+      userName: user.name,
+      resetLink,
+    });
 
     return res.status(200).json({
       message: 'Password reset link has been successfully sent to your email address.',
-      resetLink, // Expose reset link in JSON response for easy local testing
     });
   } catch (error) {
     console.error('[authController] forgotPassword error:', error);
@@ -256,38 +299,53 @@ async function resetPassword(req, res) {
       return res.status(400).json({ error: 'Password must be at least 6 characters.' });
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET);
-    } catch (err) {
-      return res.status(400).json({ error: 'Invalid or expired password reset token.' });
+    let user = null;
+
+    if (process.env.DATABASE_URL) {
+      try {
+        const result = await db.query(
+          'SELECT id, email, name FROM "User" WHERE "resetToken" = $1 AND "resetExpires" > NOW() LIMIT 1',
+          [token]
+        );
+        if (result.rows.length > 0) {
+          user = result.rows[0];
+        }
+      } catch (error) {
+        console.error('[authController] DB error during resetPassword token verification:', error);
+        return res.status(500).json({ error: 'Database verification failed.', details: error.message });
+      }
+    } else {
+      // Mock verification
+      const found = mockDB.findUserByResetToken(token);
+      if (found) {
+        const hasExpired = new Date() > new Date(found.resetExpires);
+        if (!hasExpired) {
+          user = found;
+        }
+      }
     }
 
-    if (decoded.purpose !== 'password-reset') {
-      return res.status(400).json({ error: 'Invalid reset token usage.' });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired password reset token.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (process.env.DATABASE_URL) {
       try {
-        const updateResult = await db.query(
-          'UPDATE "User" SET password = $1 WHERE id = $2 RETURNING id',
-          [hashedPassword, decoded.userId]
+        await db.query(
+          'UPDATE "User" SET password = $1, "resetToken" = NULL, "resetExpires" = NULL WHERE id = $2',
+          [hashedPassword, user.id]
         );
-        if (updateResult.rows.length === 0) {
-          return res.status(404).json({ error: 'User not found in system.' });
-        }
       } catch (error) {
-        console.error('[authController] DB error during resetPassword:', error);
-        throw error;
+        console.error('[authController] DB error during resetPassword save:', error);
+        return res.status(500).json({ error: 'Failed to update password.', details: error.message });
       }
     } else {
-      // Mock fallback
-      const success = mockDB.updateUserPassword(decoded.userId, hashedPassword);
-      if (!success) {
-        return res.status(404).json({ error: 'User not found in mock database.' });
-      }
+      // Mock save
+      user.password = hashedPassword;
+      delete user.resetToken;
+      delete user.resetExpires;
     }
 
     return res.status(200).json({

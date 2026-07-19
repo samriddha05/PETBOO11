@@ -369,15 +369,9 @@ async function run() {
         ('Fresh Chicken & Veggie Bowl', 'Freshly prepared chicken breast with sweet potato and green beans.', 349, 'Fresh Food', NULL, TRUE),
         ('Beef & Brown Rice Meal', 'Lean ground beef with brown rice and carrots. Vet-approved recipe.', 399, 'Fresh Food', NULL, TRUE),
         ('Fish & Quinoa Dinner', 'Wild-caught fish with quinoa and spinach. Rich in Omega-3.', 449, 'Fresh Food', NULL, TRUE),
-        ('Turkey & Pumpkin Stew', 'Slow-cooked turkey with pumpkin puree. Easy on sensitive tummies.', 379, 'Fresh Food', NULL, TRUE),
-        ('Grain-Free Salmon Kibble', 'Grain-free dry food with salmon, sweet potato, and superfoods.', 1599, 'Packaged Food', NULL, TRUE),
-        ('Plush Squeaker Bone', 'Soft toy with hidden squeaker designed for gentle play.', 299, 'Toys', NULL, TRUE),
-        ('LED Safety Collar', 'Rechargeable LED collar for night walks and visibility.', 499, 'Accessories', NULL, TRUE),
-        ('Travel Water Bottle', 'Leak-proof water bottle with attached dish for walks and travel.', 699, 'Accessories', NULL, TRUE),
-        ('Veggie Chicken Mash', 'Fresh chicken mash with pumpkin and peas for picky eaters.', 329, 'Fresh Food', NULL, TRUE),
-        ('Mutton & Brown Rice Bowl', 'Fresh mutton with brown rice and vegetables. High protein.', 409, 'Fresh Food', NULL, TRUE)
+        ('Turkey & Pumpkin Stew', 'Slow-cooked turkey with pumpkin puree. Easy on sensitive tummies.', 379, 'Fresh Food', NULL, TRUE)
     `);
-    console.log('   ✅ 22 products seeded!');
+    console.log('   ✅ 16 products seeded!');
   } else {
     console.log(`🌱 Products already seeded (${productCount.rows[0].count} found).`);
   }
@@ -392,11 +386,7 @@ async function run() {
         ('Aarav Patel', 'aarav.p@groomers.com', '+91-9998887772', 'Expert in large breeds and double-coated dogs.', 'https://images.unsplash.com/photo-1537151625747-768b6fc40db5?w=400', 5, 'Supela Market Area', 'Bhilai', 'Supela, Bhilai', 4.7, 8, '{"Mon", "Wed", "Fri", "Sat"}', TRUE),
         ('Ananya Iyer', 'ananya.i@groomers.com', '+91-9998887773', 'Cat grooming specialist. Fear-free certified.', 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400', 12, 'Nehru Nagar West', 'Bhilai', 'Nehru Nagar, Bhilai', 5.0, 24, '{"Tue", "Thu", "Sat"}', TRUE),
         ('Vikram Singh', 'vikram.s@groomers.com', '+91-9998887774', 'All-breed grooming expert with a passion for creative cuts.', 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400', 6, '45 Green Glen Layout', 'Bangalore', 'Koramangala, Bangalore', 4.8, 12, '{"Mon", "Tue", "Wed", "Thu"}', TRUE),
-        ('Rohan Das', 'rohan.d@groomers.com', '+91-9998887775', 'Professional groomer focusing on dog safety and clean styling.', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', 10, 'Shankar Nagar, VIP Road', 'Raipur', 'VIP Road, Raipur', 4.6, 9, '{"Wed", "Thu", "Fri", "Sat", "Sun"}', TRUE),
-        ('Maya Rao', 'maya.r@groomers.com', '+91-9998887776', 'Specializes in breed-specific styling with a calm, mobile grooming service.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400', 9, 'Sector 9 Market', 'Raipur', 'Sector 9, Raipur', 4.7, 10, '{"Mon", "Tue", "Thu", "Fri"}', TRUE),
-        ('Sahil Khanna', 'sahil.k@groomers.com', '+91-9998887777', 'Skilled in precision trims and sensitive coat handling for small breeds.', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', 7, 'Indiranagar', 'Bangalore', 'Indiranagar, Bangalore', 4.8, 14, '{"Tue", "Wed", "Fri", "Sat"}', TRUE),
-        ('Nisha Kapoor', 'nisha.k@groomers.com', '+91-9998887778', 'Delhi-based stylist for show-quality cuts and calming grooming experiences.', 'https://images.unsplash.com/photo-1556228724-4f6e81bb9d64?w=400', 11, 'South Delhi', 'Delhi', 'South Delhi, Delhi', 4.6, 18, '{"Mon", "Wed", "Thu", "Sat"}', TRUE),
-        ('Ritika Mehra', 'ritika.m@groomers.com', '+91-9998887779', 'Mobile grooming specialist known for gentle baths and full-service styling.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400', 8, 'Banjara Hills', 'Hyderabad', 'Banjara Hills, Hyderabad', 4.7, 13, '{"Tue", "Thu", "Sat", "Sun"}', TRUE)
+        ('Rohan Das', 'rohan.d@groomers.com', '+91-9998887775', 'Professional groomer focusing on dog safety and clean styling.', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', 10, 'Shankar Nagar, VIP Road', 'Raipur', 'VIP Road, Raipur', 4.6, 9, '{"Wed", "Thu", "Fri", "Sat", "Sun"}', TRUE)
       RETURNING id;
     `);
     
@@ -405,10 +395,6 @@ async function run() {
     const ananyaId = groomerRes.rows[2].id;
     const vikramId = groomerRes.rows[3].id;
     const rohanId = groomerRes.rows[4].id;
-    const mayaId = groomerRes.rows[5].id;
-    const sahilId = groomerRes.rows[6].id;
-    const nishaId = groomerRes.rows[7].id;
-    const ritikaId = groomerRes.rows[8].id;
  
     await dbClient.query(`
       INSERT INTO "GroomingService" ("groomerId", "title", "description", "price", "durationMins") VALUES
@@ -421,15 +407,7 @@ async function run() {
         ('${vikramId}', 'Puppy Grooming', 'Introduces puppies to grooming with a gentle bath and blow dry.', 40.00, 45),
         ('${vikramId}', 'Full Groom Package', 'Standard bath, customized haircut, and hygiene clipping.', 80.00, 100),
         ('${rohanId}', 'Deodorizing Bath', 'Removes tough odors with deep-cleaning organic shampoo.', 50.00, 50),
-        ('${rohanId}', 'Ear & Eye Cleaning', 'Safe cleaning of tear stains and ear canals.', 20.00, 30),
-        ('${mayaId}', 'Mobile Spa & Groom', 'Comprehensive mobile grooming with calming techniques and home service.', 90.00, 100),
-        ('${mayaId}', 'Precision Breed Trim', 'Breed-specific styling and coat finishing for show-ready looks.', 110.00, 140),
-        ('${sahilId}', 'Small Breed Style', 'Trims and styling tailored for small dog breeds.', 70.00, 80),
-        ('${sahilId}', 'Deluxe Paw Care', 'Paw pad trim, nail trim, and moisturizing balm application.', 35.00, 30),
-        ('${nishaId}', 'Show Cut Groom', 'Specialized show-cut service for premium dog coats.', 130.00, 150),
-        ('${nishaId}', 'Calming Bath', 'Gentle oat milk bath for stressed pets.', 55.00, 45),
-        ('${ritikaId}', 'Home Comfort Groom', 'At-home grooming service with soothing handling.', 95.00, 110),
-        ('${ritikaId}', 'Nail Trim & Paw Care', 'Safe nail trim and paw pad tidy up.', 25.00, 25)
+        ('${rohanId}', 'Ear & Eye Cleaning', 'Safe cleaning of tear stains and ear canals.', 20.00, 30)
     `);
     console.log('   ✅ Groomers and services seeded!');
   } else {
@@ -442,20 +420,12 @@ async function run() {
     console.log('🌱 Seeding veterinarians...');
     await dbClient.query(`
       INSERT INTO "Veterinarian" ("id", "name", "email", "phone", "specialization", "experience", "clinic", "address", "city", "lat", "lng", "consultationFee", "rating", "reviewCount", "imageUrl", "availableDays", "availableTimeStart", "availableTimeEnd", "isAvailable") VALUES
-        ('9a7b0001-c852-4467-929a-5d79d52379a1', 'Dr. Priya Sharma', 'priya.sharma@petvet.com', '+91-9876543210', 'General Veterinary', 12, 'PawCare Animal Hospital', '45, MG Road, Koramangala', 'Bangalore', 12.9352, 77.6245, 800, 4.8, 124, 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri"}', '09:00', '18:00', TRUE),
-        ('9a7b0002-c852-4467-929a-5d79d52379a2', 'Dr. Arjun Patel', 'arjun.patel@petvet.com', '+91-9876543211', 'Orthopedic Surgery', 15, 'VetLife Specialty Clinic', '12, Indiranagar 100ft Road', 'Bangalore', 12.9784, 77.6408, 1500, 4.9, 89, 'https://images.unsplash.com/photo-1551601651-5c8b0df1d7f2?w=800&q=80', '{"Mon", "Wed", "Fri"}', '10:00', '16:00', TRUE),
-        ('9a7b0003-c852-4467-929a-5d79d52379a3', 'Dr. Sneha Reddy', 'sneha.reddy@petvet.com', '+91-9876543212', 'Dermatology', 8, 'SkinPaw Dermatology Center', '78, Whitefield Main Road', 'Bangalore', 12.9698, 77.7500, 1000, 4.6, 67, 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80', '{"Tue", "Thu", "Sat"}', '09:00', '17:00', TRUE),
-        ('9a7b0004-c852-4467-929a-5d79d52379a4', 'Dr. Rahul Mehta', 'rahul.mehta@petvet.com', '+91-9876543213', 'Cardiology', 20, 'HeartPet Cardiac Care', '23, Bandra West', 'Mumbai', 19.0596, 72.8295, 2000, 4.9, 203, 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '08:00', '20:00', TRUE),
-        ('9a7b0005-c852-4467-929a-5d79d52379a5', 'Dr. Rakesh Tiwari', 'rakesh.tiwari@petvet.com', '+91-9301234567', 'General Veterinary', 14, 'Durg Pet Care Hospital', 'Near Rajendra Chowk, Station Road', 'Durg', 21.1904, 81.2849, 500, 4.7, 98, 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '09:00', '19:00', TRUE),
-        ('9a7b0006-c852-4467-929a-5d79d52379a6', 'Dr. Suman Verma', 'suman.verma@petvet.com', '+91-9302345678', 'Dermatology', 9, 'PawSkin Veterinary Clinic', 'Padmanabhpur, Main Road', 'Durg', 21.1950, 81.2800, 600, 4.5, 64, 'https://images.unsplash.com/photo-1545996124-1b06d5f1b2b1?w=800&q=80', '{"Mon", "Wed", "Fri", "Sat"}', '10:00', '18:00', TRUE),
-        ('9a7b0007-c852-4467-929a-5d79d52379a7', 'Dr. Neha Sahu', 'neha.sahu@petvet.com', '+91-9303456789', 'Emergency & Critical Care', 11, 'Durg Animal Emergency Center', 'Nehru Nagar, Near Bus Stand', 'Durg', 21.1880, 81.2870, 800, 4.8, 112, 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}', '00:00', '23:59', TRUE),
-        ('9a7b0008-c852-4467-929a-5d79d52379a8', 'Dr. Anil Jaiswal', 'anil.jaiswal@petvet.com', '+91-9304567890', 'Orthopedic Surgery', 16, 'Bhilai Veterinary Orthopedic Center', 'Sector 6, Near Nehru Park', 'Bhilai', 21.2094, 81.3297, 1000, 4.6, 73, 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', '{"Mon", "Tue", "Thu", "Sat"}', '09:00', '17:00', TRUE),
-        ('9a7b0009-c852-4467-929a-5d79d52379a9', 'Dr. Kavita Pandey', 'kavita.pandey@petvet.com', '+91-9305678901', 'Nutrition & Wellness', 7, 'Healthy Paws Nutrition Clinic', 'Supela Chowk, Main Road', 'Bhilai', 21.2150, 81.3350, 450, 4.4, 55, 'https://images.unsplash.com/photo-1545996124-1b06d5f1b2b1?w=800&q=80', '{"Tue", "Wed", "Thu", "Fri"}', '10:00', '16:00', TRUE),
-        ('9a7b0010-c852-4467-929a-5d79d52379b0', 'Dr. Pradeep Sharma', 'pradeep.sharma@petvet.com', '+91-9306789012', 'Cardiology', 19, 'Raipur Pet Heart Care', 'Pandri, Near Bus Stand', 'Raipur', 21.2363, 81.6296, 1200, 4.9, 145, 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '08:00', '20:00', TRUE),
-        ('9a7b0011-c852-4467-929a-5d79d52379b1', 'Dr. Anjali Dewangan', 'anjali.dewangan@petvet.com', '+91-9307890123', 'Dental Care', 8, 'SmilePet Dental Clinic', 'Tatibandh, Raipur', 'Raipur', 21.2500, 81.6100, 550, 4.5, 41, 'https://images.unsplash.com/photo-1545996124-1b06d5f1b2b1?w=800&q=80', '{"Mon", "Wed", "Fri", "Sat"}', '10:00', '18:00', TRUE),
-        ('9a7b0012-c852-4467-929a-5d79d52379b2', 'Dr. Ravi Soni', 'ravi.soni@petvet.com', '+91-9308901234', 'General Veterinary', 10, 'Soni Veterinary Hospital', 'Power House Road, Durg', 'Durg', 21.1920, 81.2900, 400, 4.3, 87, 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80', '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '08:00', '20:00', TRUE)
+        ('9a7b0001-c852-4467-929a-5d79d52379a1', 'Dr. Priya Sharma', 'priya.sharma@petvet.com', '+91-9876543210', 'General Veterinary', 12, 'PawCare Animal Hospital', '45, MG Road, Koramangala', 'Bangalore', 12.9352, 77.6245, 800, 4.8, 124, NULL, '{"Mon", "Tue", "Wed", "Thu", "Fri"}', '09:00', '18:00', TRUE),
+        ('9a7b0002-c852-4467-929a-5d79d52379a2', 'Dr. Arjun Patel', 'arjun.patel@petvet.com', '+91-9876543211', 'Orthopedic Surgery', 15, 'VetLife Specialty Clinic', '12, Indiranagar 100ft Road', 'Bangalore', 12.9784, 77.6408, 1500, 4.9, 89, NULL, '{"Mon", "Wed", "Fri"}', '10:00', '16:00', TRUE),
+        ('9a7b0003-c852-4467-929a-5d79d52379a3', 'Dr. Sneha Reddy', 'sneha.reddy@petvet.com', '+91-9876543212', 'Dermatology', 8, 'SkinPaw Dermatology Center', '78, Whitefield Main Road', 'Bangalore', 12.9698, 77.7500, 1000, 4.6, 67, NULL, '{"Tue", "Thu", "Sat"}', '09:00', '17:00', TRUE),
+        ('9a7b0004-c852-4467-929a-5d79d52379a4', 'Dr. Rahul Mehta', 'rahul.mehta@petvet.com', '+91-9876543213', 'Cardiology', 20, 'HeartPet Cardiac Care', '23, Bandra West', 'Mumbai', 19.0596, 72.8295, 2000, 4.9, 203, NULL, '{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}', '08:00', '20:00', TRUE)
     `);
-    console.log('   ✅ 12 veterinarians seeded!');
+    console.log('   ✅ 4 veterinarians seeded!');
   } else {
     console.log(`🌱 Veterinarians already seeded (${vetCount.rows[0].count} found).`);
   }

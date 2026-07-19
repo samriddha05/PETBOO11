@@ -1,5 +1,6 @@
-The link -- https://punyaadixit.github.io/PETBOO/
-
+<p align="center">
+  <img src="https://img.shields.io/badge/PetSphere-🐾-emerald?style=for-the-badge&labelColor=064e3b&color=059669" alt="PetSphere" />
+</p>
 
 <h1 align="center">🐾 PetSphere</h1>
 
@@ -83,8 +84,8 @@ PetSphere/
 
 ### Prerequisites
 
-- **Node.js** ≥ 24.x
-- **npm** ≥ 10.x
+- **Node.js** ≥ 18.x
+- **npm** ≥ 9.x
 - **PostgreSQL** database (or Supabase project)
 - **Groq API Key** (free at [console.groq.com](https://console.groq.com))
 
@@ -148,12 +149,10 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 ### `petsphere-frontend/.env`
 
 ```env
-VITE_API_URL=http://localhost:5000
 REACT_APP_SUPABASE_URL=https://your-project.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+REACT_APP_BACKEND_URL=http://localhost:5000
 ```
-
-For GitHub Pages deployment, set the secret `VITE_API_URL` to your backend base URL (for example `https://api.example.com`).
 
 > ⚠️ **Never commit `.env` files to version control.** They are excluded via `.gitignore`.
 

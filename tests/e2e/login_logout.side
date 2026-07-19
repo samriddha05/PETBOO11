@@ -1,0 +1,107 @@
+{
+  "id": "c81123d5-e25f-4bf1-a4b7-e23a9d4a36f7",
+  "version": "2.0",
+  "name": "PetSphere Auth Flow",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "a8b273f5-674b-4b13-9092-747192a0de24",
+      "name": "Login and Logout Flow",
+      "commands": [
+        {
+          "id": "9a81e9f1-432d-45db-9c3f-ee72b22037ad",
+          "comment": "Open the login page",
+          "command": "open",
+          "target": "/login",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "272b53b0-56df-49c0-9988-518293751a02",
+          "comment": "Set standard window size",
+          "command": "setWindowSize",
+          "target": "1280x800",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "e8cc9d12-fbfb-419b-ab92-91f1a5de9142",
+          "comment": "Click Enter Demo Mode",
+          "command": "click",
+          "target": "css=.login-card__demo",
+          "targets": [
+            ["css=.login-card__demo", "css:finder"],
+            ["xpath=//button[contains(.,'Enter Demo Mode')]", "xpath:innerText"]
+          ],
+          "value": ""
+        },
+        {
+          "id": "b3040fa7-7a2e-4b2a-8cfa-d0c883e022f1",
+          "comment": "Wait for user profile avatar button to be visible",
+          "command": "waitForElementVisible",
+          "target": "css=.topnav__avatar",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "4e095b54-71ea-4279-b1d5-cde78a1bc1b2",
+          "comment": "Click user profile avatar to open menu",
+          "command": "click",
+          "target": "css=.topnav__avatar",
+          "targets": [
+            ["css=.topnav__avatar", "css:finder"],
+            ["xpath=//div[@id='root']/div/header/div[2]/div[2]/button", "xpath:idRelative"],
+            ["xpath=//div[2]/button", "xpath:position"]
+          ],
+          "value": ""
+        },
+        {
+          "id": "5fa23d14-385a-4b9b-9831-7e8dbbc2a3ef",
+          "comment": "Wait for Sign Out button in dropdown",
+          "command": "waitForElementVisible",
+          "target": "css=.topnav__dropdown-item.logout",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "5fbcf09e-7be1-4770-9856-7889eb228ef7",
+          "comment": "Click the Sign Out button",
+          "command": "click",
+          "target": "css=.topnav__dropdown-item.logout",
+          "targets": [
+            ["css=.logout", "css:finder"],
+            ["xpath=//div[@id='root']/div/header/div[2]/div[2]/div/button", "xpath:idRelative"],
+            ["xpath=//div[2]/div/button", "xpath:position"],
+            ["xpath=//button[contains(.,'Sign Out')]", "xpath:innerText"]
+          ],
+          "value": ""
+        },
+        {
+          "id": "6c8cdfe2-9ea9-4569-b570-349f7e8a34b2",
+          "comment": "Verify redirection to login page (wait for login email input to show)",
+          "command": "waitForElementVisible",
+          "target": "id=login-email",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "3d6874ba-911a-464a-a92c-88229b1be123",
+      "name": "Default Suite",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "a8b273f5-674b-4b13-9092-747192a0de24"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:5173",
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}
