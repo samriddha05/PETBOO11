@@ -203,19 +203,9 @@ export default function MedicalRecordsTab({ petId, petName }) {
   };
 
   const handleFileUpload = async (recordId, file) => {
-    let token = 'demo-token';
-    try {
-      const stored = JSON.parse(localStorage.getItem('petsphere_auth') || '{}');
-      token = stored.token || token;
-      if (localStorage.getItem('petsphere_demo') === 'true') token = 'demo-token';
-    } catch { /* use default */ }
     const fd = new FormData();
     fd.append('file', file);
-    const res = await fetch(
-      `/api/v1/pets/${petId}/medical/${recordId}/files`,
-      { method: 'POST', body: fd, headers: { Authorization: `Bearer ${token}` } }
-    );
-    if (!res.ok) throw new Error('Upload failed');
+    await api.upload(`/pets/${petId}/medical/${recordId}/files`, fd);
     fetchRecords();
   };
 
@@ -241,12 +231,7 @@ export default function MedicalRecordsTab({ petId, petName }) {
     }
 
     try {
-      const res = await fetch(`/api/v1/pets/${petId}/medical/auto-extract`, {
-        method: 'POST',
-        body: fd,
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Auto-extract failed');
+      await api.upload(`/pets/${petId}/medical/auto-extract`, fd);
       await fetchRecords();
     } catch (err) {
       console.error(err);
