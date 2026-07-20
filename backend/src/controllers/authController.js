@@ -15,7 +15,7 @@ const { sendPasswordResetEmail } = require('../utils/mailer');
  */
 async function signup(req, res) {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name } = req.body || {};
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' });
@@ -83,7 +83,7 @@ async function signup(req, res) {
  */
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' });
@@ -95,7 +95,7 @@ async function login(req, res) {
     if (process.env.DATABASE_URL) {
       try {
         const result = await db.query(
-          'SELECT id, email, name, password, COALESCE(role, \''user\') AS role FROM "User" WHERE email = $1 LIMIT 1',
+          `SELECT id, email, name, password, COALESCE(role, 'user') AS role FROM "User" WHERE email = $1 LIMIT 1`,
           [email]
         );
         if (result.rows.length > 0) {
@@ -158,7 +158,7 @@ async function getMe(req, res) {
     if (process.env.DATABASE_URL) {
       try {
         const result = await db.query(
-          'SELECT id, email, name, COALESCE(role, \'user\') AS role, "createdAt" FROM "User" WHERE id = $1 LIMIT 1',
+          `SELECT id, email, name, COALESCE(role, 'user') AS role, "createdAt" FROM "User" WHERE id = $1 LIMIT 1`,
           [userId]
         );
         if (result.rows.length > 0) user = result.rows[0];
@@ -190,7 +190,7 @@ async function getMe(req, res) {
  */
 async function forgotPassword(req, res) {
   try {
-    const { email } = req.body;
+    const { email } = req.body || {};
     if (!email) {
       return res.status(400).json({ error: 'Email is required.' });
     }
@@ -300,7 +300,7 @@ async function logout(req, res) {
  */
 async function resetPassword(req, res) {
   try {
-    const { token, password } = req.body;
+    const { token, password } = req.body || {};
 
     if (!token || !password) {
       return res.status(400).json({ error: 'Token and new password are required.' });

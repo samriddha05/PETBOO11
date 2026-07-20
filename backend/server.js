@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: (origin, callback) => {
-    const rawOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const rawOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:5000';
     const allowed = rawOrigin
       .split(',')
       .map(item => item.trim())
@@ -71,7 +71,7 @@ app.get('/health', (_req, res) => {
 
 if (frontendBuilt) {
   app.use(express.static(frontendDistPath));
-  app.get('*', (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
 } else {
@@ -79,10 +79,6 @@ if (frontendBuilt) {
     res.send('PetSphere Backend API is running perfectly!');
   });
 }
-
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
 
 app.listen(PORT, () => {
   const dbConfigured = !!process.env.DATABASE_URL;
