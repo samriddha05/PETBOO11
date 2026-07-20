@@ -1,7 +1,7 @@
 const { createClient } = require("@supabase/supabase-js");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "petsphere-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secure-jwt-secret";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
@@ -21,20 +21,32 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ error: "Missing bearer token." });
     }
 
-    /* ── Demo-mode bypass ── */
     if (token === "demo-token") {
       req.userId = "demo-user-001";
+      req.user = { id: "demo-user-001", role: "demo" };
       return next();
     }
 
-    /* ── Try JWT verification (local auth) ── */
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
-      if (decoded && decoded.userId) {
-        req.userId = decoded.userId;
-        return next();
+      if (!decoded || !decoded.userId || !decoded.email) {
+        return res.status(401).json({ error: "Invalid token payload." });
       }
-    } catch {
+
+      req.userId = decoded.userId;
+      req.user = {
+        id: decoded.userId,
+        email: decoded.email,
+        role: decoded.role || 'user',
+      };
+      return next();
+    } catch (jwtError) {
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Expired token.' });
+      }
+      if (jwtError.name === 'JsonWebTokenError') {
+        return res.status(401).json({ error: 'Invalid token.' });
+      }
       // Not a valid JWT — try Supabase next
     }
 

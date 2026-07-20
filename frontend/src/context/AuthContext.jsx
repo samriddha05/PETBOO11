@@ -101,6 +101,13 @@ export function AuthProvider({ children }) {
 
   /* Sign Out */
   const signOut = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (err) {
+      // If logout request fails, still clear local auth state.
+      console.warn('Logout failed:', err.message || err);
+    }
+
     if (isDemo) {
       localStorage.removeItem('petsphere_demo');
       setIsDemo(false);

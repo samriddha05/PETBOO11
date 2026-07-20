@@ -84,6 +84,8 @@ async function run() {
       "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       "email" TEXT NOT NULL UNIQUE,
       "name" TEXT NOT NULL,
+      "password" TEXT,
+      "role" TEXT NOT NULL DEFAULT 'user',
       "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);

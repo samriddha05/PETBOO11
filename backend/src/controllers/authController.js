@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { mockDB, uuid } = require('../utils/mockData');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'petsphere-secret-key-change-in-production';
-const JWT_EXPIRES_IN = '7d';
+const JWT_SECRET = process.env.JWT_SECRET || 'please-set-a-secure-jwt-secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 const db = require('../utils/db');
 const { sendPasswordResetEmail } = require('../utils/mailer');
@@ -26,6 +26,8 @@ async function signup(req, res) {
 
     const displayName = (name && name.trim()) || email.split('@')[0];
     const hashedPassword = await bcrypt.hash(password, 10);
+    let user = null;
+    const role = 'user';
 
     if (process.env.DATABASE_URL) {
       try {
@@ -40,8 +42,8 @@ async function signup(req, res) {
 
         // Create user with password
         const result = await db.query(
-          'INSERT INTO "User" (id, email, name, password, "createdAt") VALUES (gen_random_uuid(), $1, $2, $3, NOW()) RETURNING id, email, name, "createdAt"',
-          [email, displayName, hashedPassword]
+          'INSERT INTO "User" (id, email, name, password, role, "createdAt") VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW()) RETURNING id, email, name, role, "createdAt"',
+          [email, displayName, hashedPassword, role]
         );
         user = result.rows[0];
       } catch (dbErr) {
@@ -56,17 +58,18 @@ async function signup(req, res) {
       if (existing) {
         return res.status(409).json({ error: 'An account with this email already exists.' });
       }
-      user = mockDB.upsertUser({ id: uuid(), email, name: displayName, password: hashedPassword });
+      user = mockDB.upsertUser({ id: uuid(), email, name: displayName, password: hashedPassword, role });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
+    const userRole = user.role || 'user';
+    const token = jwt.sign({ userId: user.id, email: user.email, role: userRole }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
     return res.status(201).json({
-      user: { id: user.id, email: user.email, name: user.name },
+      success: true,
       token,
+      user: { id: user.id, email: user.email, name: user.name, role: userRole },
     });
   } catch (error) {
     console.error('[authController] signup error:', error);
@@ -92,7 +95,7 @@ async function login(req, res) {
     if (process.env.DATABASE_URL) {
       try {
         const result = await db.query(
-          'SELECT id, email, name, password FROM "User" WHERE email = $1 LIMIT 1',
+          'SELECT id, email, name, password, COALESCE(role, \''user\') AS role FROM "User" WHERE email = $1 LIMIT 1',
           [email]
         );
         if (result.rows.length > 0) {
@@ -124,14 +127,15 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
+    const userRole = user.role || 'user';
+    const token = jwt.sign({ userId: user.id, email: user.email, role: userRole }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
     return res.status(200).json({
-      user: { id: user.id, email: user.email, name: user.name },
+      success: true,
       token,
+      user: { id: user.id, email: user.email, name: user.name, role: userRole },
     });
   } catch (error) {
     console.error('[authController] login error:', error);
@@ -154,7 +158,7 @@ async function getMe(req, res) {
     if (process.env.DATABASE_URL) {
       try {
         const result = await db.query(
-          'SELECT id, email, name, "createdAt" FROM "User" WHERE id = $1 LIMIT 1',
+          'SELECT id, email, name, COALESCE(role, \'user\') AS role, "createdAt" FROM "User" WHERE id = $1 LIMIT 1',
           [userId]
         );
         if (result.rows.length > 0) user = result.rows[0];
@@ -171,7 +175,10 @@ async function getMe(req, res) {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    return res.status(200).json({ user: { id: user.id, email: user.email, name: user.name } });
+    return res.status(200).json({
+      success: true,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role || 'user' },
+    });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to get profile.', details: error.message });
   }
@@ -283,6 +290,10 @@ async function forgotPassword(req, res) {
   }
 }
 
+async function logout(req, res) {
+  return res.status(200).json({ success: true, message: 'Successfully logged out.' });
+}
+
 /**
  * POST /api/v1/auth/reset-password
  * Body: { token, password }
@@ -357,4 +368,4 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { signup, login, getMe, forgotPassword, resetPassword, JWT_SECRET };
+module.exports = { signup, login, getMe, logout, forgotPassword, resetPassword, JWT_SECRET };
