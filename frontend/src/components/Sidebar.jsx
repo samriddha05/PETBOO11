@@ -18,7 +18,7 @@ const NAV_MODULES = [
   { path: '/vets',      label: 'Veterinarians', icon: Stethoscope,   accent: 'blue'   },
   { path: '/grooming',  label: 'Pet Grooming',  icon: Scissors,      accent: 'pink'   },
   { path: '/appointments', label: 'Appointments', icon: CalendarCheck, accent: 'green'  },
-  { path: '/admin',     label: 'Admin',       icon: Shield,          accent: 'purple' },
+  { path: '/admin',     label: 'Reference & Remark', icon: Shield,          accent: 'purple' },
 ];
 
 export default function Sidebar() {

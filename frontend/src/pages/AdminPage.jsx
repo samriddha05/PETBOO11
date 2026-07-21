@@ -31,7 +31,7 @@ export default function AdminPage() {
   return (
     <div className="admin-page">
       <div className="admin-page__header">
-        <h2><Shield size={22} /> Admin Panel</h2>
+        <h2><Shield size={22} /> Reference & Remark Panel</h2>
         <p>Manage the Cuddles AI knowledge base by ingesting new documents.</p>
       </div>
 

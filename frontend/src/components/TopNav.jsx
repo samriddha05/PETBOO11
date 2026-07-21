@@ -13,7 +13,7 @@ const PAGE_TITLES = {
   '/chat':       'Cuddles AI',
   '/shop':       'Pet Shop',
   '/fresh-food': 'Fresh Food',
-  '/admin':      'Admin Panel',
+  '/admin':      'Reference & Remark Panel',
 };
 
 export default function TopNav() {
